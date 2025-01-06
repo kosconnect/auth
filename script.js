@@ -1,6 +1,21 @@
 // Ganti dengan email yang diterima dari backend setelah proses login
 let email = "";
 
+fetch("https://kosconnect-server.vercel.app/auth/callback", {
+  method: "GET", // atau POST, sesuai kebutuhan
+})
+.then(response => response.json())
+.then(data => {
+  if (data.token) {
+    // Token diterima, lakukan redirect berdasarkan role
+    window.location.href = data.redirectURL;
+  } else {
+    // Tampilkan error jika perlu
+    console.error("Login gagal:", data.error);
+  }
+});
+
+
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
   if (!email) {
