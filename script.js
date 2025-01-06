@@ -1,20 +1,35 @@
 // Ganti dengan email yang diterima dari backend setelah proses login
 let email = "";
 
+// Ketika callback dari Google OAuth diterima
 fetch("https://kosconnect-server.vercel.app/auth/callback", {
-  method: "GET", // atau POST, sesuai kebutuhan
+  method: "GET", // atau POST jika diperlukan
+  credentials: "include", // Sertakan cookie
 })
-.then(response => response.json())
-.then(data => {
-  if (data.token) {
-    // Token diterima, lakukan redirect berdasarkan role
-    window.location.href = data.redirectURL;
-  } else {
-    // Tampilkan error jika perlu
-    console.error("Login gagal:", data.error);
-  }
-});
+  .then((response) => {
+    if (!response.ok) {
+      return response.json().then((errorData) => {
+        throw new Error(errorData.error || "Authentication failed");
+      });
+    }
+    return response.json();
+  })
+  .then((data) => {
+    if (data.token && data.role) {
+      // Simpan token dan role di cookie
+      document.cookie = `authToken=${data.token}; path=/; secure;`;
+      document.cookie = `userRole=${data.role}; path=/; secure;`;
 
+      // Redirect pengguna ke URL yang sesuai
+      window.location.href = data.redirectURL;
+    } else {
+      console.error("Missing token or role");
+    }
+  })
+  .catch((error) => {
+    console.error("Error during OAuth callback:", error);
+    alert("Authentication failed. Please try again.");
+  });
 
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
