@@ -1,0 +1,84 @@
+/* Mengatur keseluruhan halaman */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Mengatur container role-selection sebagai card */
+.role-selection {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  padding: 20px;
+  text-align: center;
+}
+
+/* Style untuk heading dan paragraph */
+.role-selection h2 {
+  font-family: "Merriweather Sans", sans-serif;
+  font-size: 24px;
+  margin: 0 0 10px;
+  color: #005f73 ;
+}
+
+.role-selection p {
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Container roles */
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Style untuk button */
+.role-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Mengatur isi button agar mulai dari kiri */
+  gap: 10px;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  color: #333;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+  width: 300px;
+  height: 100px;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+  margin: 0 auto;
+}
+
+.role-button:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Style untuk gambar dalam button */
+.role-button img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-left: 10px; /* Memberikan jarak 10px dari tepi kiri button */
+}
+
+/* Style untuk teks dalam button */
+.role-button span {
+  font-family: "Poppins", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  margin-left: 30px; /* Menambahkan sedikit jarak antara gambar dan teks */
+  color: #005f73;
+}
