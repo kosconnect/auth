@@ -20,10 +20,20 @@ fetch("https://kosconnect-server.vercel.app/auth/callback", {
       document.cookie = `authToken=${data.token}; path=/; secure;`;
       document.cookie = `userRole=${data.role}; path=/; secure;`;
 
-      // Redirect pengguna ke URL yang sesuai
-      window.location.href = data.redirectURL;
+      // Redirect ke halaman sesuai role
+      if (data.role === "user") {
+        window.location.href = "https://kosconnect.github.io/";
+      } else if (data.role === "owner") {
+        window.location.href = "https://kosconnect.github.io/dashboard-owner";
+      } else if (data.role === "admin") {
+        window.location.href = "https://kosconnect.github.io/dashboard-admin";
+      } else {
+        console.error("Invalid role");
+        alert("Role tidak valid. Silakan hubungi administrator.");
+      }
     } else {
       console.error("Missing token or role");
+      alert("Token atau role tidak ditemukan. Silakan coba lagi.");
     }
   })
   .catch((error) => {
