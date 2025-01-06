@@ -13,7 +13,7 @@ const assignRole = async (role) => {
     const response = await fetch(
       "https://kosconnect-server.vercel.app/auth/assign-role",
       {
-        method: "POST",
+        method: "PUT", // Menggunakan PUT untuk update role
         headers: {
           "Content-Type": "application/json",
         },
@@ -24,11 +24,6 @@ const assignRole = async (role) => {
     const data = await response.json();
     if (data.message === "Role assigned successfully") {
       alert("Role berhasil diatur. Anda sekarang masuk sebagai " + role);
-
-      // Redirect ke backend untuk validasi akhir
-      window.location.href = `https://kosconnect-server.vercel.app/auth/callback?email=${encodeURIComponent(
-        email
-      )}`;
     } else {
       alert("Gagal mengatur role: " + data.error);
     }
