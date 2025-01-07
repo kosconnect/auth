@@ -116,52 +116,49 @@ let email = "";
 //   }
 // };
 
-fetch("https://kosconnect-server.vercel.app/auth/callback", {
-  method: "GET",
-  credentials: "include",
-})
-  .then((response) => response.json())
-  .then((data) => {
-    if (data.token && data.redirectURL) {
-      // Redirect ke backend untuk set cookie dan redirect
-      const url = new URL("https://kosconnect-server.vercel.app/auth/set-token-and-redirect");
-      url.searchParams.append("token", data.token);
-      url.searchParams.append("redirectURL", data.redirectURL);
-      window.location.href = url.toString();
-    } else {
-      alert("Authentication failed");
-    }
-  })
-  .catch((error) => {
-    console.error("Error:", error);
-    alert("Failed to process authentication");
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const state = urlParams.get('state');
 
-// Event listener untuk button role selection
-document.getElementById("user-role").addEventListener("click", () => {
-  assignRole("user");
-});
+  if (code && state) {
+    fetch("https://kosconnect-server.vercel.app/auth/callback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, state }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((errorData) => {
+            throw new Error(errorData.message || "Login gagal");
+          });
+        }
+        return response.json();
+      })
+      .then((result) => {
+        if (result.token && result.role) {
+          // Simpan token dan role ke cookie
+          document.cookie = `authToken=${result.token}; path=/; secure;`;
+          document.cookie = `userRole=${result.role}; path=/; secure;`;
 
-document.getElementById("owner-role").addEventListener("click", () => {
-  assignRole("owner");
-});
-
-// Fungsi untuk menampilkan card pemilihan role saat halaman dimuat
-window.addEventListener("DOMContentLoaded", () => {
-  // Ambil email dari query parameter yang dikirimkan oleh backend
-  const params = new URLSearchParams(window.location.search);
-  email = params.get("email");
-
-  if (!email) {
-    alert("Email tidak ditemukan. Silakan login ulang.");
-    return;
+          // Redirect berdasarkan role
+          if (result.role === "user") {
+            window.location.href = "https://kosconnect.github.io/";
+          } else if (result.role === "owner") {
+            window.location.href = "https://kosconnect.github.io/dashboard-owner";
+          } else if (result.role === "admin") {
+            window.location.href = "https://kosconnect.github.io/dashboard-admin";
+          } else {
+            alert("Role tidak valid.");
+          }
+        }
+      })
+      .catch((error) => {
+        alert(error.message);
+      });
   }
-
-  // Tampilkan card pemilihan role
-  document.querySelector(".role-selection").style.display = "block";
-
-  // Bersihkan query parameters dari URL
-  window.history.replaceState({}, document.title, "/auth");
 });
 
 // Fungsi untuk menetapkan role
