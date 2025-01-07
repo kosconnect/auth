@@ -1,5 +1,46 @@
 // Ganti dengan email yang diterima dari backend setelah proses login
-let email = "";
+// let email = "";
+
+// Get query parameters from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const email = urlParams.get('email');
+const role = urlParams.get('role');
+const id = urlParams.get('id');
+
+// Send data to the backend
+fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ email, role, id }),
+})
+  .then(async (response) => {
+    const data = await response.json();
+    if (response.ok) {
+      // Redirect user based on their role
+      switch (role) {
+        case "user":
+          window.location.href = "https://kosconnect.github.io/";
+          break;
+        case "owner":
+          window.location.href = "https://kosconnect.github.io/dashboard-owner";
+          break;
+        case "admin":
+          window.location.href = "https://kosconnect.github.io/dashboard-admin";
+          break;
+        default:
+          console.error("Unknown role:", role);
+          break;
+      }
+    } else {
+      // Handle error (e.g., invalid data or server error)
+      console.error("Error during authentication:", data.error);
+    }
+  })
+  .catch((err) => {
+    console.error("Failed to connect to the server:", err);
+  });
 
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
