@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const state = urlParams.get('state');
 
   if (code && state) {
-    fetch("https://kosconnect-server.vercel.app/auth/callback", {
+    fetch("https://kosconnect-server.vercel.app/auth/callback?code=" + code + "&state=" + state, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
