@@ -1,45 +1,83 @@
 // Ganti dengan email yang diterima dari backend setelah proses login
 let email = "";
 
-// Ketika callback dari Google OAuth diterima
-fetch("https://kosconnect-server.vercel.app/auth/callback", {
-  method: "GET", // atau POST jika diperlukan
-  credentials: "include", // Sertakan cookie
-})
-  .then((response) => {
-    if (!response.ok) {
-      return response.json().then((errorData) => {
-        throw new Error(errorData.error || "Authentication failed");
-      });
-    }
-    return response.json();
-  })
-  .then((data) => {
-    if (data.token && data.role) {
-      // Simpan token dan role di cookie
-      document.cookie = `authToken=${data.token}; path=/; secure;`;
-      document.cookie = `userRole=${data.role}; path=/; secure;`;
+// // Ketika callback dari Google OAuth diterima
+// fetch("https://kosconnect-server.vercel.app/auth/callback", {
+//   method: "GET", // atau POST jika diperlukan
+//   credentials: "include", // Sertakan cookie
+// })
+//   .then((response) => {
+//     if (!response.ok) {
+//       return response.json().then((errorData) => {
+//         throw new Error(errorData.error || "Authentication failed");
+//       });
+//     }
+//     return response.json();
+//   })
+//   .then((data) => {
+//     if (data.token && data.role) {
+//       // Simpan token dan role di cookie
+//       document.cookie = `authToken=${data.token}; path=/; secure;`;
+//       document.cookie = `userRole=${data.role}; path=/; secure;`;
 
-      // Redirect ke halaman sesuai role
-      if (data.role === "user") {
-        window.location.href = "https://kosconnect.github.io/";
-      } else if (data.role === "owner") {
-        window.location.href = "https://kosconnect.github.io/dashboard-owner";
-      } else if (data.role === "admin") {
-        window.location.href = "https://kosconnect.github.io/dashboard-admin";
-      } else {
-        console.error("Invalid role");
-        alert("Role tidak valid. Silakan hubungi administrator.");
-      }
+//       // Redirect ke halaman sesuai role
+//       if (data.role === "user") {
+//         window.location.href = "https://kosconnect.github.io/";
+//       } else if (data.role === "owner") {
+//         window.location.href = "https://kosconnect.github.io/dashboard-owner";
+//       } else if (data.role === "admin") {
+//         window.location.href = "https://kosconnect.github.io/dashboard-admin";
+//       } else {
+//         console.error("Invalid role");
+//         alert("Role tidak valid. Silakan hubungi administrator.");
+//       }
+//     } else {
+//       console.error("Missing token or role");
+//       alert("Token atau role tidak ditemukan. Silakan coba lagi.");
+//     }
+//   })
+//   .catch((error) => {
+//     console.error("Error during OAuth callback:", error);
+//     alert("Authentication failed. Please try again.");
+//   });
+
+fetch("https://kosconnect-server.vercel.app/auth/callback?code=" + code + "&state=" + state, {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: 'include',
+})
+.then((response) => {
+  return response.json();
+})
+.then((result) => {
+  if (result.token && result.role) {
+    // Simpan token ke HttpOnly cookie (untuk keamanan)
+    document.cookie = `authToken=${result.token}; SameSite=Strict; Secure; HttpOnly; path=/`;
+    // Simpan role ke cookie (kurang sensitif)
+    document.cookie = `userRole=${result.role}; SameSite=Strict; Secure; path=/`;
+
+    // Redirect ke halaman sesuai role tanpa mengecek status 200
+    if (result.role === "user") {
+      window.location.href = "https://kosconnect.github.io/";
+    } else if (result.role === "owner") {
+      window.location.href = "https://kosconnect.github.io/dashboard-owner";
+    } else if (result.role === "admin") {
+      window.location.href = "https://kosconnect.github.io/dashboard-admin";
     } else {
-      console.error("Missing token or role");
-      alert("Token atau role tidak ditemukan. Silakan coba lagi.");
+      console.error("Invalid role");
+      alert("Role tidak valid. Silakan hubungi administrator.");
     }
-  })
-  .catch((error) => {
-    console.error("Error during OAuth callback:", error);
-    alert("Authentication failed. Please try again.");
-  });
+  } else {
+    console.error("Missing token or role");
+    alert("Token atau role tidak ditemukan. Silakan coba lagi.");
+  }
+})
+.catch((error) => {
+  console.error("Error during OAuth callback:", error);
+  alert("Authentication failed. Please try again.");
+});
 
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
