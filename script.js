@@ -41,75 +41,101 @@ let email = "";
 //     alert("Authentication failed. Please try again.");
 //   });
 
+// fetch("https://kosconnect-server.vercel.app/auth/callback", {
+//   method: "GET",
+//   headers: {
+//     "Content-Type": "application/json",
+//   },
+//   credentials: "include",
+// })
+//   .then((response) => {
+//     if (!response.ok) {
+//       return response.json().then((errorData) => {
+//         throw new Error(errorData.message || "Periksa kredensial Anda.");
+//       });
+//     }
+//     return response.json();
+//   })
+//   .then((result) => {
+//     if (result.token && result.role) {
+//       // Simpan token ke HttpOnly cookie (untuk keamanan)
+//       document.cookie = `authToken=${result.token}; SameSite=Strict; Secure; HttpOnly; path=/`;
+//       // Simpan role ke cookie (kurang sensitif)
+//       document.cookie = `userRole=${result.role}; SameSite=Strict; Secure; path=/`;
+
+//       // Redirect ke halaman sesuai role tanpa mengecek status 200
+//       if (result.role === "user") {
+//         window.location.href = "https://kosconnect.github.io/";
+//       } else if (result.role === "owner") {
+//         window.location.href = "https://kosconnect.github.io/dashboard-owner";
+//       } else if (result.role === "admin") {
+//         window.location.href = "https://kosconnect.github.io/dashboard-admin";
+//       } else {
+//         console.error("Invalid role");
+//         alert("Role tidak valid. Silakan hubungi administrator.");
+//       }
+//     } else {
+//       console.error("Missing token or role");
+//       alert("Token atau role tidak ditemukan. Silakan coba lagi.");
+//     }
+//   })
+//   .catch((error) => {
+//     console.error("Error during OAuth callback:", error);
+//     alert("Authentication failed. Please try again.");
+//   });
+
+// // Fungsi untuk menetapkan role
+// const assignRole = async (role) => {
+//   if (!email) {
+//     alert("Email tidak ditemukan. Silakan coba login ulang.");
+//     return;
+//   }
+
+//   try {
+//     // Kirim role ke backend
+//     const response = await fetch(
+//       "https://kosconnect-server.vercel.app/auth/assign-role",
+//       {
+//         method: "PUT", // Menggunakan PUT untuk update role
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({ email, role }),
+//       }
+//     );
+
+//     const data = await response.json();
+//     if (data.message === "Role assigned successfully") {
+//       alert("Role berhasil diatur. Anda sekarang masuk sebagai " + role);
+//     } else {
+//       alert("Gagal mengatur role: " + data.error);
+//     }
+//   } catch (error) {
+//     console.error("Error assigning role:", error);
+//     alert("Terjadi kesalahan saat mengatur role.");
+//   }
+// };
+
 fetch("https://kosconnect-server.vercel.app/auth/callback", {
   method: "GET",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  credentials: 'include',
+  credentials: "include",
 })
-.then((response) => {
-  return response.json();
-})
-.then((result) => {
-  if (result.token && result.role) {
-    // Simpan token ke HttpOnly cookie (untuk keamanan)
-    document.cookie = `authToken=${result.token}; SameSite=Strict; Secure; HttpOnly; path=/`;
-    // Simpan role ke cookie (kurang sensitif)
-    document.cookie = `userRole=${result.role}; SameSite=Strict; Secure; path=/`;
-
-    // Redirect ke halaman sesuai role tanpa mengecek status 200
-    if (result.role === "user") {
-      window.location.href = "https://kosconnect.github.io/";
-    } else if (result.role === "owner") {
-      window.location.href = "https://kosconnect.github.io/dashboard-owner";
-    } else if (result.role === "admin") {
-      window.location.href = "https://kosconnect.github.io/dashboard-admin";
+  .then((response) => response.json())
+  .then((data) => {
+    if (data.token && data.redirectURL) {
+      // Redirect ke backend untuk set cookie dan redirect
+      const url = new URL("https://kosconnect-server.vercel.app/auth/set-token-and-redirect");
+      url.searchParams.append("token", data.token);
+      url.searchParams.append("redirectURL", data.redirectURL);
+      window.location.href = url.toString();
     } else {
-      console.error("Invalid role");
-      alert("Role tidak valid. Silakan hubungi administrator.");
+      alert("Authentication failed");
     }
-  } else {
-    console.error("Missing token or role");
-    alert("Token atau role tidak ditemukan. Silakan coba lagi.");
-  }
-})
-.catch((error) => {
-  console.error("Error during OAuth callback:", error);
-  alert("Authentication failed. Please try again.");
-});
-
-// Fungsi untuk menetapkan role
-const assignRole = async (role) => {
-  if (!email) {
-    alert("Email tidak ditemukan. Silakan coba login ulang.");
-    return;
-  }
-
-  try {
-    // Kirim role ke backend
-    const response = await fetch(
-      "https://kosconnect-server.vercel.app/auth/assign-role",
-      {
-        method: "PUT", // Menggunakan PUT untuk update role
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, role }),
-      }
-    );
-
-    const data = await response.json();
-    if (data.message === "Role assigned successfully") {
-      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + role);
-    } else {
-      alert("Gagal mengatur role: " + data.error);
-    }
-  } catch (error) {
-    console.error("Error assigning role:", error);
-    alert("Terjadi kesalahan saat mengatur role.");
-  }
-};
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+    alert("Failed to process authentication");
+  });
 
 // Event listener untuk button role selection
 document.getElementById("user-role").addEventListener("click", () => {
