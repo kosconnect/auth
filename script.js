@@ -67,12 +67,10 @@ const assignRole = async (role) => {
 
     const data = await response.json();
     if (response.ok && data.token && data.role) {
+      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + data.role);
       // Simpan token dan role ke cookie
       document.cookie = `authToken=${data.token}; path=/; secure;`;
       document.cookie = `userRole=${data.role}; path=/; secure;`;
-
-      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + data.role);
-
       // Redirect berdasarkan role
       if (data.role === "user") {
         window.location.href = "https://kosconnect.github.io/";
@@ -84,7 +82,9 @@ const assignRole = async (role) => {
         alert("Role tidak valid. Silakan hubungi administrator.");
       }
     } else {
-      alert("Gagal mengatur role: " + (data.error || "Token atau role tidak valid."));
+      alert(
+        "Gagal mengatur role: " + (data.error || "Token atau role tidak valid.")
+      );
     }
   } catch (error) {
     console.error("Error assigning role:", error);
