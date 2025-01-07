@@ -5,7 +5,6 @@
 const urlParams = new URLSearchParams(window.location.search);
 const email = urlParams.get('email');
 const role = urlParams.get('role');
-const id = urlParams.get('id');
 
 // Send data to the backend
 fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
@@ -13,26 +12,30 @@ fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
   headers: {
     "Content-Type": "application/json",
   },
-  body: JSON.stringify({ email, role, id }),
+  body: JSON.stringify({ email, role }),
 })
-  .then(async (response) => {
-    const data = await response.json();
-    if (response.ok) {
-      // Redirect user based on their role
-      switch (role) {
-        case "user":
-          window.location.href = "https://kosconnect.github.io/";
-          break;
-        case "owner":
-          window.location.href = "https://kosconnect.github.io/dashboard-owner";
-          break;
-        case "admin":
-          window.location.href = "https://kosconnect.github.io/dashboard-admin";
-          break;
-        default:
-          console.error("Unknown role:", role);
-          break;
-      }
+.then((response) => {
+  if (!response.ok) {
+    return response.json().then((errorData) => {
+      throw new Error(errorData.message || "Periksa kredensial Anda.");
+    });
+  }
+  return response.json();
+})
+.then((result) => {
+  if (result.token && result.role) {
+    // Simpan token dan role ke cookie
+    document.cookie = `authToken=${result.token}; path=/; secure;`;
+    document.cookie = `userRole=${result.role}; path=/; secure;`;
+
+    // Alihkan pengguna berdasarkan role
+    if (result.role === "user") {
+      window.location.href = "https://kosconnect.github.io/";
+    } else if (result.role === "owner") {
+      window.location.href = "https://kosconnect.github.io/dashboard-owner";
+    } else if (result.role === "admin") {
+      window.location.href = "https://kosconnect.github.io/dashboard-admin";
+    }
     } else {
       // Handle error (e.g., invalid data or server error)
       console.error("Error during authentication:", data.error);
