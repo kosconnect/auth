@@ -3,8 +3,8 @@
 
 // Get query parameters from the URL
 const urlParams = new URLSearchParams(window.location.search);
-const email = urlParams.get('email');
-const role = urlParams.get('role');
+const email = urlParams.get("email");
+const role = urlParams.get("role");
 
 // Send data to the backend
 fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
@@ -14,28 +14,28 @@ fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
   },
   body: JSON.stringify({ email, role }),
 })
-.then((response) => {
-  if (!response.ok) {
-    return response.json().then((errorData) => {
-      throw new Error(errorData.message || "Periksa kredensial Anda.");
-    });
-  }
-  return response.json();
-})
-.then((result) => {
-  if (result.token && result.role) {
-    // Simpan token dan role ke cookie
-    document.cookie = `authToken=${result.token}; path=/; secure;`;
-    document.cookie = `userRole=${result.role}; path=/; secure;`;
-
-    // Alihkan pengguna berdasarkan role
-    if (result.role === "user") {
-      window.location.href = "https://kosconnect.github.io/";
-    } else if (result.role === "owner") {
-      window.location.href = "https://kosconnect.github.io/dashboard-owner";
-    } else if (result.role === "admin") {
-      window.location.href = "https://kosconnect.github.io/dashboard-admin";
+  .then((response) => {
+    if (!response.ok) {
+      return response.json().then((errorData) => {
+        throw new Error(errorData.message || "Periksa kredensial Anda.");
+      });
     }
+    return response.json();
+  })
+  .then((result) => {
+    if (result.token && result.role) {
+      // Simpan token dan role ke cookie
+      document.cookie = `authToken=${result.token}; path=/; secure;`;
+      document.cookie = `userRole=${result.role}; path=/; secure;`;
+
+      // Alihkan pengguna berdasarkan role
+      if (result.role === "user") {
+        window.location.href = "https://kosconnect.github.io/";
+      } else if (result.role === "owner") {
+        window.location.href = "https://kosconnect.github.io/dashboard-owner";
+      } else if (result.role === "admin") {
+        window.location.href = "https://kosconnect.github.io/dashboard-admin";
+      }
     } else {
       // Handle error (e.g., invalid data or server error)
       console.error("Error during authentication:", data.error);
@@ -66,19 +66,25 @@ const assignRole = async (role) => {
     );
 
     const data = await response.json();
-    if (data.message === "Role assigned successfully") {
-      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + role);
+    if (response.ok && data.token && data.role) {
+      // Simpan token dan role ke cookie
+      document.cookie = `authToken=${data.token}; path=/; secure;`;
+      document.cookie = `userRole=${data.role}; path=/; secure;`;
+
+      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + data.role);
 
       // Redirect berdasarkan role
-      if (role === "user") {
+      if (data.role === "user") {
         window.location.href = "https://kosconnect.github.io/";
-      } else if (role === "owner") {
+      } else if (data.role === "owner") {
         window.location.href = "https://kosconnect.github.io/dashboard-owner";
+      } else if (data.role === "admin") {
+        window.location.href = "https://kosconnect.github.io/dashboard-admin";
       } else {
         alert("Role tidak valid. Silakan hubungi administrator.");
       }
     } else {
-      alert("Gagal mengatur role: " + data.error);
+      alert("Gagal mengatur role: " + (data.error || "Token atau role tidak valid."));
     }
   } catch (error) {
     console.error("Error assigning role:", error);
