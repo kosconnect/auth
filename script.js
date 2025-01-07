@@ -184,6 +184,15 @@ const assignRole = async (role) => {
     const data = await response.json();
     if (data.message === "Role assigned successfully") {
       alert("Role berhasil diatur. Anda sekarang masuk sebagai " + role);
+
+      // Redirect berdasarkan role
+      if (role === "user") {
+        window.location.href = "https://kosconnect.github.io/";
+      } else if (role === "owner") {
+        window.location.href = "https://kosconnect.github.io/dashboard-owner";
+      } else {
+        alert("Role tidak valid. Silakan hubungi administrator.");
+      }
     } else {
       alert("Gagal mengatur role: " + data.error);
     }
