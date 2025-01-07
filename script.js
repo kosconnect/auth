@@ -41,7 +41,7 @@ let email = "";
 //     alert("Authentication failed. Please try again.");
 //   });
 
-fetch("https://kosconnect-server.vercel.app/auth/callback?code=" + code + "&state=" + state, {
+fetch("https://kosconnect-server.vercel.app/auth/callback", {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
