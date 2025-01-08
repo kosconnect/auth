@@ -45,20 +45,6 @@ fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
     console.error("Failed to connect to the server:", err);
   });
 
-  // Redirect untuk mendukung clean URLs
-  const path = window.location.pathname;
-  const cleanUrl = path.endsWith('/') ? `${path}assign-role` : `${path}.html`;
-
-  // Redirect jika file statis ditemukan
-  fetch(cleanUrl)
-    .then((response) => {
-      if (response.ok) {
-        window.location.href = cleanUrl; // Redirect ke file HTML
-      } else {
-        document.body.innerHTML = `<h1>404 - Page Not Found</h1>`;
-      }
-    });
-
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
   if (!email) {
