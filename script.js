@@ -47,7 +47,7 @@ fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
 
   // Redirect untuk mendukung clean URLs
   const path = window.location.pathname;
-  const cleanUrl = path.endsWith('/') ? `${path}assign-role.html` : `${path}.html`;
+  const cleanUrl = path.endsWith('/') ? `${path}assign-role` : `${path}.html`;
 
   // Redirect jika file statis ditemukan
   fetch(cleanUrl)
