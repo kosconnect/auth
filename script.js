@@ -45,6 +45,20 @@ fetch("https://kosconnect-server.vercel.app/auth/googleauth", {
     console.error("Failed to connect to the server:", err);
   });
 
+  // Redirect untuk mendukung clean URLs
+  const path = window.location.pathname;
+  const cleanUrl = path.endsWith('/') ? `${path}assign-role.html` : `${path}.html`;
+
+  // Redirect jika file statis ditemukan
+  fetch(cleanUrl)
+    .then((response) => {
+      if (response.ok) {
+        window.location.href = cleanUrl; // Redirect ke file HTML
+      } else {
+        document.body.innerHTML = `<h1>404 - Page Not Found</h1>`;
+      }
+    });
+
 // Fungsi untuk menetapkan role
 const assignRole = async (role) => {
   if (!email) {
@@ -69,32 +83,8 @@ const assignRole = async (role) => {
       const errorData = await response.json();
       throw new Error(errorData.error || "Gagal mengatur role.");
     }
-
-    const data = await response.json();
-
-    if (data.token && data.role) {
-      // Simpan token dan role ke cookie
-      document.cookie = `authToken=${data.token}; path=/; secure;`;
-      document.cookie = `userRole=${data.role}; path=/; secure;`;
-
-      // Tampilkan notifikasi keberhasilan
-      alert("Role berhasil diatur. Anda sekarang masuk sebagai " + data.role);
-
-      // Redirect berdasarkan role
-      if (data.role === "user") {
-        window.location.href = "https://kosconnect.github.io/";
-      } else if (data.role === "owner") {
-        window.location.href = "https://kosconnect.github.io/dashboard-owner";
-      } else if (data.role === "admin") {
-        window.location.href = "https://kosconnect.github.io/dashboard-admin";
-      } else {
-        alert("Role tidak valid. Silakan hubungi administrator.");
-      }
-    } else {
-      alert(
-        "Gagal mengatur role: " + (data.error || "Token atau role tidak valid.")
-      );
-    }
+    // Tampilkan notifikasi keberhasilan
+    alert("Role berhasil diatur. Silakan login ulang untuk melanjutkan.");
   } catch (error) {
     console.error("Error assigning role:", error);
     alert("Terjadi kesalahan saat mengatur role.");
